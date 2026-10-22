@@ -1,0 +1,630 @@
+{
+  "question": "COVID-19 in Texas counties, 2020-2023: where and when did hot spots emerge?",
+  "state_fips": "48",
+  "n_counties": 254,
+  "period": "March 2020 - February 2023",
+  "n_months": 36,
+  "population_2021": 29561286,
+  "exclusion_rule": {
+    "rule": "reported cases in the analysis period > 1 x 2021 resident population",
+    "reason": "a resident-based rate is not interpretable; a likely (unverified) explanation is that cases among non-resident workers were counted in the county",
+    "excluded_counties": [
+      {
+        "county": "Loving",
+        "fips": "48301",
+        "population_2021": 54,
+        "cases_in_period": 399,
+        "cases_per_resident": 7.39
+      }
+    ],
+    "next_highest_cases_per_resident": [
+      {
+        "county": "Jim Hogg",
+        "cases_per_resident": 0.786
+      },
+      {
+        "county": "Dimmit",
+        "cases_per_resident": 0.731
+      },
+      {
+        "county": "Zavala",
+        "cases_per_resident": 0.463
+      }
+    ],
+    "n_counties_analysed": 253,
+    "islands_after_exclusion": [],
+    "kept_in": "statewide totals, wave timeline, metro/nonmetro pooled rates",
+    "excluded_from": "Empirical Bayes rate maps, Moran's I, Gi*, space-time cube, emerging hot spots",
+    "reference_rate": "pooled rate of the analysed counties (same period)"
+  },
+  "data_notes": {
+    "unknown_county_cases_final": 10831,
+    "unknown_county_deaths_final": 0,
+    "first_date": "2020-02-12",
+    "last_date": "2023-03-23",
+    "downward_revisions_daily_cases": 3612,
+    "downward_revisions_daily_deaths": 419,
+    "cases_in_period": 8241305,
+    "deaths_in_period": 94059
+  },
+  "statewide": {
+    "cases_per_100k_period": 27878.7,
+    "deaths_per_100k_period": 318.2
+  },
+  "eb_smoothing_example": {
+    "smallest_analysed_county": "King",
+    "population_2021": 256,
+    "deaths": 0,
+    "death_rate_crude": 0.0,
+    "death_rate_eb": 277.7,
+    "county_death_rate_crude_range": [
+      0.0,
+      1689.2
+    ],
+    "county_death_rate_eb_range": [
+      141.0,
+      904.2
+    ]
+  },
+  "waves": {
+    "Summer 2020": {
+      "start": "2020-06-01",
+      "end": "2020-09-30",
+      "cases_peak_week": "2020-07-19",
+      "cases_peak_per_100k": 246.8,
+      "cases_total_per_100k": 2432.2,
+      "deaths_peak_week": "2020-08-02",
+      "deaths_peak_per_100k": 8.54,
+      "deaths_total_per_100k": 48.8
+    },
+    "Winter 2020-21": {
+      "start": "2020-10-01",
+      "end": "2021-03-31",
+      "cases_peak_week": "2021-01-17",
+      "cases_peak_per_100k": 543.3,
+      "cases_total_per_100k": 6782.3,
+      "deaths_peak_week": "2021-01-24",
+      "deaths_peak_per_100k": 7.79,
+      "deaths_total_per_100k": 109.7
+    },
+    "Delta": {
+      "start": "2021-07-01",
+      "end": "2021-11-30",
+      "cases_peak_week": "2021-09-05",
+      "cases_peak_per_100k": 450.2,
+      "cases_total_per_100k": 4495.5,
+      "deaths_peak_week": "2021-09-26",
+      "deaths_peak_per_100k": 7.09,
+      "deaths_total_per_100k": 73.2
+    },
+    "Omicron BA.1": {
+      "start": "2021-12-01",
+      "end": "2022-03-31",
+      "cases_peak_week": "2022-01-16",
+      "cases_peak_per_100k": 1716.0,
+      "cases_total_per_100k": 7948.6,
+      "deaths_peak_week": "2022-02-13",
+      "deaths_peak_per_100k": 5.23,
+      "deaths_total_per_100k": 45.1
+    },
+    "Omicron BA.5 and later": {
+      "start": "2022-06-01",
+      "end": "2023-02-28",
+      "cases_peak_week": "2022-07-10",
+      "cases_peak_per_100k": 311.7,
+      "cases_total_per_100k": 4678.1,
+      "deaths_peak_week": "2022-11-13",
+      "deaths_peak_per_100k": 2.75,
+      "deaths_total_per_100k": 19.0
+    }
+  },
+  "morans_i_monthly": {
+    "cases": {
+      "min": 0.029,
+      "min_month": "2022-04",
+      "max": 0.429,
+      "max_month": "2021-02",
+      "median": 0.204,
+      "months_significant_p05": 35,
+      "months": 36
+    },
+    "deaths": {
+      "min": -0.026,
+      "min_month": "2020-03",
+      "max": 0.454,
+      "max_month": "2020-12",
+      "median": 0.135,
+      "months_significant_p05": 31,
+      "months": 36
+    }
+  },
+  "morans_i_full_period": {
+    "cases": {
+      "I": 0.307,
+      "p_sim": 0.001
+    },
+    "deaths": {
+      "I": 0.376,
+      "p_sim": 0.001
+    }
+  },
+  "gi_star_by_wave_cases": {
+    "Summer 2020": {
+      "hot": 31,
+      "cold": 1
+    },
+    "Winter 2020-21": {
+      "hot": 19,
+      "cold": 12
+    },
+    "Delta": {
+      "hot": 3,
+      "cold": 5
+    },
+    "Omicron BA.1": {
+      "hot": 16,
+      "cold": 3
+    },
+    "Omicron BA.5 and later": {
+      "hot": 7,
+      "cold": 0
+    }
+  },
+  "gi_star_by_wave_deaths": {
+    "Summer 2020": {
+      "hot": 20,
+      "cold": 0
+    },
+    "Winter 2020-21": {
+      "hot": 22,
+      "cold": 19
+    },
+    "Delta": {
+      "hot": 23,
+      "cold": 1
+    },
+    "Omicron BA.1": {
+      "hot": 16,
+      "cold": 5
+    },
+    "Omicron BA.5 and later": {
+      "hot": 7,
+      "cold": 0
+    }
+  },
+  "gi_star_hot_counties_by_wave": {
+    "Summer 2020": [
+      "Atascosa",
+      "Bee",
+      "Brooks",
+      "Cameron",
+      "DeWitt",
+      "Dimmit",
+      "Duval",
+      "Frio",
+      "Goliad",
+      "Gonzales",
+      "Hidalgo",
+      "Jackson",
+      "Jim Hogg",
+      "Jim Wells",
+      "Karnes",
+      "Kenedy",
+      "Kinney",
+      "Kleberg",
+      "La Salle",
+      "Lavaca",
+      "Live Oak",
+      "Maverick",
+      "McMullen",
+      "Refugio",
+      "San Patricio",
+      "Starr",
+      "Uvalde",
+      "Victoria",
+      "Webb",
+      "Willacy",
+      "Zavala"
+    ],
+    "Winter 2020-21": [
+      "Childress",
+      "Collingsworth",
+      "Culberson",
+      "Dimmit",
+      "El Paso",
+      "Frio",
+      "Hale",
+      "Hall",
+      "Hardeman",
+      "Hockley",
+      "Hudspeth",
+      "Jeff Davis",
+      "Kinney",
+      "La Salle",
+      "Lubbock",
+      "Maverick",
+      "Val Verde",
+      "Webb",
+      "Zavala"
+    ],
+    "Delta": [
+      "Frio",
+      "Maverick",
+      "Zavala"
+    ],
+    "Omicron BA.1": [
+      "Briscoe",
+      "Brooks",
+      "Collingsworth",
+      "Dimmit",
+      "Donley",
+      "Duval",
+      "Frio",
+      "Hall",
+      "Jim Hogg",
+      "La Salle",
+      "Maverick",
+      "Motley",
+      "Starr",
+      "Webb",
+      "Zapata",
+      "Zavala"
+    ],
+    "Omicron BA.5 and later": [
+      "Brooks",
+      "Duval",
+      "Jim Hogg",
+      "McCulloch",
+      "Starr",
+      "Webb",
+      "Zapata"
+    ]
+  },
+  "gi_note": "hot/cold counts use FDR-adjusted q < 0.05",
+  "emerging_hot_spots": {
+    "input": "monthly EB case rate divided by the pooled rate of the analysed counties that month",
+    "time_window_months": 1,
+    "alpha": 0.05,
+    "counts": {
+      "Sporadic Hot Spot": 1,
+      "New Cold Spot": 1,
+      "No Pattern Detected": 251
+    },
+    "counties_by_category": {
+      "Sporadic Hot Spot": [
+        "Menard"
+      ],
+      "New Cold Spot": [
+        "Smith"
+      ]
+    },
+    "precedence": [
+      "New Hot Spot",
+      "Consecutive Hot Spot",
+      "Intensifying Hot Spot",
+      "Diminishing Hot Spot",
+      "Sporadic Hot Spot",
+      "Oscillating Hot Spot",
+      "New Cold Spot",
+      "Consecutive Cold Spot",
+      "Intensifying Cold Spot",
+      "Diminishing Cold Spot",
+      "Sporadic Cold Spot",
+      "Oscillating Cold Spot",
+      "Historical Hot Spot",
+      "Historical Cold Spot",
+      "Persistent Hot Spot",
+      "Persistent Cold Spot"
+    ],
+    "precedence_note": "Esri's documentation defines the categories but gives no rule for a location meeting more than one; the first definition met in 'precedence' is assigned and the others are listed in county_summary.csv (ehsa_also_meets).",
+    "counties_meeting_multiple_definitions": [],
+    "counts_by_metro": {
+      "New Cold Spot": {
+        "Metro": 1,
+        "Nonmetro": 0
+      },
+      "No Pattern Detected": {
+        "Metro": 85,
+        "Nonmetro": 166
+      },
+      "Sporadic Hot Spot": {
+        "Metro": 0,
+        "Nonmetro": 1
+      }
+    },
+    "max_months_hot": 12,
+    "counties_hot_at_least_once": 174,
+    "counties_cold_at_least_once": 28,
+    "share_bins_hot": 0.07,
+    "share_bins_cold": 0.004,
+    "longest_hot_counties": [
+      {
+        "county": "Armstrong",
+        "months_hot": 12
+      },
+      {
+        "county": "Carson",
+        "months_hot": 12
+      },
+      {
+        "county": "Dimmit",
+        "months_hot": 11
+      },
+      {
+        "county": "Frio",
+        "months_hot": 10
+      },
+      {
+        "county": "Briscoe",
+        "months_hot": 10
+      },
+      {
+        "county": "Hansford",
+        "months_hot": 10
+      },
+      {
+        "county": "Roberts",
+        "months_hot": 10
+      },
+      {
+        "county": "Moore",
+        "months_hot": 10
+      },
+      {
+        "county": "Potter",
+        "months_hot": 10
+      },
+      {
+        "county": "Randall",
+        "months_hot": 10
+      },
+      {
+        "county": "Hale",
+        "months_hot": 9
+      },
+      {
+        "county": "Hutchinson",
+        "months_hot": 9
+      },
+      {
+        "county": "Webb",
+        "months_hot": 9
+      },
+      {
+        "county": "Motley",
+        "months_hot": 9
+      },
+      {
+        "county": "La Salle",
+        "months_hot": 9
+      }
+    ],
+    "ehsa_hot_categories_by_months_hot": [
+      {
+        "county": "Menard",
+        "ehsa_category": "Sporadic Hot Spot",
+        "months_hot": 4.0
+      }
+    ],
+    "sensitivity": {
+      "raw_rate_input_counts": {
+        "No Pattern Detected": 253
+      },
+      "no_time_window_counts": {
+        "Sporadic Hot Spot": 2,
+        "No Pattern Detected": 251
+      },
+      "no_fdr_counts": {
+        "Consecutive Hot Spot": 1,
+        "Sporadic Hot Spot": 2,
+        "Oscillating Hot Spot": 10,
+        "New Cold Spot": 9,
+        "Consecutive Cold Spot": 10,
+        "Sporadic Cold Spot": 9,
+        "Oscillating Cold Spot": 37,
+        "No Pattern Detected": 175
+      },
+      "deaths_counts": {
+        "No Pattern Detected": 253
+      }
+    },
+    "hot_months_per_county": {
+      "0": 79,
+      "1-2": 87,
+      "3-5": 48,
+      "6-8": 23,
+      "9+": 16
+    },
+    "first_hot_by_wave": {
+      "Winter 2020-21": 90,
+      "Never a hot spot": 79,
+      "Between waves": 51,
+      "Summer 2020": 17,
+      "Delta": 12,
+      "Omicron BA.1": 3,
+      "Omicron BA.5 and later": 1
+    },
+    "first_hot_by_month": {
+      "2020-04": 9,
+      "2020-05": 23,
+      "2020-08": 11,
+      "2020-09": 6,
+      "2020-10": 15,
+      "2020-11": 30,
+      "2020-12": 22,
+      "2021-01": 5,
+      "2021-02": 18,
+      "2021-04": 1,
+      "2021-05": 4,
+      "2021-06": 10,
+      "2021-07": 1,
+      "2021-11": 11,
+      "2022-02": 2,
+      "2022-03": 1,
+      "2022-04": 4,
+      "2022-12": 1
+    },
+    "hot_counties_per_month_max": 76,
+    "hot_counties_per_month_max_month": "2020-12",
+    "cold_counties_per_month_max": 24,
+    "cold_counties_per_month_max_month": "2020-05",
+    "final_month_hot": 1,
+    "final_month_cold": 1,
+    "hot_months_by_metro_mean": {
+      "Metro": 1.98,
+      "Nonmetro": 2.83
+    }
+  },
+  "primary_vs_all_counties": {
+    "primary": {
+      "n_counties_analysed": 253,
+      "gi_hot_counties_by_wave": {
+        "Summer 2020": 31,
+        "Winter 2020-21": 19,
+        "Delta": 3,
+        "Omicron BA.1": 16,
+        "Omicron BA.5 and later": 7
+      },
+      "gi_cold_counties_by_wave": {
+        "Summer 2020": 1,
+        "Winter 2020-21": 12,
+        "Delta": 5,
+        "Omicron BA.1": 3,
+        "Omicron BA.5 and later": 0
+      },
+      "counties_hot_at_least_once": 174,
+      "counties_never_hot": 79,
+      "counties_hot_9plus_months": 16,
+      "hot_counties_peak_month": "2020-12",
+      "hot_counties_peak_count": 76,
+      "ehsa_counts": {
+        "Sporadic Hot Spot": 1,
+        "New Cold Spot": 1,
+        "No Pattern Detected": 251
+      },
+      "morans_i_cases_range": [
+        0.029,
+        0.429
+      ],
+      "morans_i_cases_median": 0.204,
+      "top_hot_counties": [
+        {
+          "county": "Armstrong",
+          "months_hot": 12
+        },
+        {
+          "county": "Carson",
+          "months_hot": 12
+        },
+        {
+          "county": "Dimmit",
+          "months_hot": 11
+        },
+        {
+          "county": "Frio",
+          "months_hot": 10
+        },
+        {
+          "county": "Briscoe",
+          "months_hot": 10
+        }
+      ]
+    },
+    "all_counties": {
+      "n_counties_analysed": 254,
+      "gi_hot_counties_by_wave": {
+        "Summer 2020": 31,
+        "Winter 2020-21": 19,
+        "Delta": 4,
+        "Omicron BA.1": 6,
+        "Omicron BA.5 and later": 4
+      },
+      "gi_cold_counties_by_wave": {
+        "Summer 2020": 1,
+        "Winter 2020-21": 12,
+        "Delta": 5,
+        "Omicron BA.1": 0,
+        "Omicron BA.5 and later": 0
+      },
+      "counties_hot_at_least_once": 167,
+      "counties_never_hot": 87,
+      "counties_hot_9plus_months": 14,
+      "hot_counties_peak_month": "2020-12",
+      "hot_counties_peak_count": 76,
+      "ehsa_counts": {
+        "Sporadic Hot Spot": 4,
+        "New Cold Spot": 1,
+        "Consecutive Cold Spot": 1,
+        "No Pattern Detected": 248
+      },
+      "morans_i_cases_range": [
+        0.012,
+        0.429
+      ],
+      "morans_i_cases_median": 0.188,
+      "top_hot_counties": [
+        {
+          "county": "Carson",
+          "months_hot": 12
+        },
+        {
+          "county": "Dimmit",
+          "months_hot": 11
+        },
+        {
+          "county": "Loving",
+          "months_hot": 11
+        },
+        {
+          "county": "Briscoe",
+          "months_hot": 10
+        },
+        {
+          "county": "Frio",
+          "months_hot": 10
+        }
+      ]
+    }
+  },
+  "metro_vs_nonmetro_per_100k": {
+    "Summer 2020": {
+      "cases_metro": 2435.7,
+      "cases_nonmetro": 2399.4,
+      "deaths_metro": 46.7,
+      "deaths_nonmetro": 67.7
+    },
+    "Winter 2020-21": {
+      "cases_metro": 6710.9,
+      "cases_nonmetro": 7435.5,
+      "deaths_metro": 100.4,
+      "deaths_nonmetro": 195.2
+    },
+    "Delta": {
+      "cases_metro": 4436.7,
+      "cases_nonmetro": 5033.2,
+      "deaths_metro": 67.4,
+      "deaths_nonmetro": 126.3
+    },
+    "Omicron BA.1": {
+      "cases_metro": 8087.5,
+      "cases_nonmetro": 6678.6,
+      "deaths_metro": 41.2,
+      "deaths_nonmetro": 81.1
+    },
+    "Omicron BA.5 and later": {
+      "cases_metro": 4819.2,
+      "cases_nonmetro": 3388.1,
+      "deaths_metro": 16.8,
+      "deaths_nonmetro": 38.9
+    },
+    "Full period": {
+      "cases_metro": 28049.3,
+      "cases_nonmetro": 26319.4,
+      "deaths_metro": 294.2,
+      "deaths_nonmetro": 537.8
+    }
+  },
+  "n_metro_counties": 86,
+  "web_map_bytes": 404810,
+  "runtime_seconds": 9.5
+}
