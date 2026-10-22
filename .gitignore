@@ -1,0 +1,15 @@
+# raw downloads (re-created by run.py)
+data/raw/
+data/cache/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

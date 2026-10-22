@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COVID-19 Hot Spots in Texas</title>
+<meta name="description" content="Interactive map of COVID-19 case rates, Getis-Ord Gi* hot spots and emerging hot spot categories for Texas counties, 2020-2023.">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<style>
+  :root { --ink:#1f2933; --muted:#6b7280; --panel:#ffffffee; --line:#e3e3df; --accent:#b4432f; --bg:#f6f5f1; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --ink:#eef0f2; --muted:#a3a9b3; --panel:#1b1f26ee; --line:#333a44; --accent:#ff8a65; --bg:#111418; }
+  }
+  :root[data-theme="dark"] { --ink:#eef0f2; --muted:#a3a9b3; --panel:#1b1f26ee; --line:#333a44; --accent:#ff8a65; --bg:#111418; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--ink);
+    font: 14px/1.4 "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif; }
+  #map { position:absolute; inset:0; }
+  .panel { position:absolute; top:12px; left:12px; width:340px; max-width:calc(100% - 24px); box-sizing:border-box;
+    background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px;
+    box-shadow:0 2px 12px #0002; backdrop-filter: blur(4px); z-index:2; max-height:calc(100% - 60px); overflow:auto; }
+  h1 { font-size:17px; margin:0 0 4px; }
+  .sub { color:var(--muted); font-size:12.5px; margin:0 0 10px; }
+  .tabs { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px; }
+  .tabs button { flex:1 1 auto; font:inherit; font-size:12.5px; padding:5px 8px; border-radius:6px; cursor:pointer;
+    border:1px solid var(--line); background:transparent; color:var(--ink); }
+  .tabs button[aria-pressed="true"] { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .ctrl { margin:8px 0; }
+  .ctrl label { font-size:12.5px; color:var(--muted); display:block; margin-bottom:3px; }
+  .row { display:flex; align-items:center; gap:8px; }
+  input[type=range] { flex:1; accent-color:var(--accent); }
+  select { font:inherit; padding:4px; border-radius:6px; border:1px solid var(--line); background:transparent; color:var(--ink); width:100%; }
+  select option { color:#1f2933; }
+  #play { font:inherit; border:1px solid var(--line); background:transparent; color:var(--ink); border-radius:6px; padding:3px 9px; cursor:pointer; }
+  #monthLabel { font-weight:600; min-width:70px; text-align:right; }
+  .legend { margin-top:8px; font-size:12px; }
+  .legend .it { display:flex; align-items:center; gap:7px; margin:2px 0; }
+  .legend .sw { width:14px; height:12px; border-radius:2px; border:1px solid #0002; flex:none; }
+  .note { font-size:11.5px; color:var(--muted); margin-top:10px; }
+  .note a { color:var(--accent); }
+  .tip { font-size:12.5px; line-height:1.35; color:#1f2933; }
+  .tip b { font-size:13.5px; }
+  .maplibregl-popup-content { border-radius:8px; padding:8px 10px; }
+  @media (max-width: 600px) { .panel { top:auto; bottom:28px; max-height:46%; } }
+</style>
+</head>
+<body>
+<div id="map" role="region" aria-label="Map of Texas counties"></div>
+<div class="panel">
+  <h1>COVID-19 in Texas counties</h1>
+  <p class="sub">Where and when did hot spots emerge? <span id="period"></span></p>
+  <div class="tabs" role="group" aria-label="Map layer">
+    <button data-mode="hot" aria-pressed="true">Hot spots by month</button>
+    <button data-mode="month" aria-pressed="false">Monthly rate</button>
+    <button data-mode="ehsa" aria-pressed="false">Emerging category</button>
+    <button data-mode="gi" aria-pressed="false">Gi* by wave</button>
+    <button data-mode="deaths" aria-pressed="false">Deaths</button>
+  </div>
+  <div class="ctrl" id="monthCtrl">
+    <label for="month">Month</label>
+    <div class="row"><button id="play" aria-label="Play">&#9654;</button>
+      <input id="month" type="range" min="0" value="0" step="1"><span id="monthLabel"></span></div>
+  </div>
+  <div class="ctrl" id="waveCtrl" hidden>
+    <label for="wave">Wave</label>
+    <select id="wave"></select>
+  </div>
+  <div class="legend" id="legend"></div>
+  <p class="note">Rates are Empirical Bayes smoothed reported cases or deaths per 100,000 residents (2021 population). Hot spots: Getis-Ord Gi* with false discovery rate control; emerging categories follow Esri's Emerging Hot Spot Analysis definitions (simplified). Counties with more reported cases than residents are hatched and left out of the rate statistics. Each death counted here was a person.
+  Data: <a href="https://github.com/nytimes/covid-19-data">The New York Times</a>, U.S. Census Bureau, USDA ERS.
+  <a href="https://github.com/landon2199/texas-covid-spacetime">Code and method</a>.</p>
+</div>
+<script>
+const DATA = /*__DATA__*/null;
+const META = /*__META__*/null;
+const fmt = n => Number(n).toLocaleString('en-US');
+let mode = 'hot', monthIdx = META.start_month || 0, waveIdx = 0, timer = null;
+
+document.getElementById('period').textContent = META.period + '.';
+const monthEl = document.getElementById('month');
+monthEl.max = META.months.length - 1;
+monthEl.value = monthIdx;
+const waveEl = document.getElementById('wave');
+META.waves.forEach((w, i) => { const o = document.createElement('option'); o.value = i; o.textContent = w; waveEl.appendChild(o); });
+const monthName = m => new Date(m + '-15').toLocaleString('en-US', { month: 'short', year: 'numeric' });
+
+function stepExpr(prop, breaks, colors) {
+  const e = ['step', ['get', prop], colors[0]];
+  for (let i = 1; i < colors.length; i++) e.push(breaks[i], colors[i]);
+  return e;
+}
+const deathColors = ['#f1eef6', '#bdc9e1', '#74a9cf', '#2b8cbe', '#045a8d'];
+
+function fillColor() {
+  if (mode === 'ehsa') {
+    const e = ['match', ['get', 'c']];
+    META.categories.forEach((c, i) => e.push(i, META.colors[c]));
+    e.push('#e9e9e6'); return e;
+  }
+  if (mode === 'hot') return ['match', ['get', 'h' + monthIdx], 1, '#cb181d', -1, '#2171b5', '#e9e9e6'];
+  if (mode === 'month') return stepExpr('r' + monthIdx, META.rate_breaks, META.rate_colors);
+  if (mode === 'gi') {
+    const e = ['match', ['get', 'g' + waveIdx]];
+    Object.entries(META.gi_colors).forEach(([k, v]) => e.push(Number(k), v));
+    e.push('#e9e9e6'); return e;
+  }
+  return stepExpr('dr', [0, ...META.death_breaks], deathColors);
+}
+
+function legend() {
+  const L = document.getElementById('legend'); let items = [];
+  const hatchSw = 'repeating-linear-gradient(135deg,#7d7d78 0 1.5px,#d9d9d5 1.5px 4px)';
+  if (mode === 'hot') {
+    items = [['#cb181d', 'Significant hot spot'], ['#2171b5', 'Significant cold spot'], ['#e9e9e6', 'Not significant']];
+  } else if (mode === 'ehsa') {
+    META.categories.forEach(c => { if (META.counts[c]) items.push([META.colors[c], `${c} (${META.counts[c]})`]); });
+  } else if (mode === 'month') {
+    // fixed scale shared by all months; ends show the smallest and largest smoothed monthly rate
+    const b = [Math.max(META.rate_min, 0), ...META.rate_breaks.slice(1), META.rate_max];
+    META.rate_colors.forEach((c, i) => items.push([c, `${fmt(b[i])} - ${fmt(b[i + 1])}`]));
+  } else if (mode === 'gi') {
+    ['3', '2', '1', '0', '-1', '-2', '-3'].forEach(k => items.push([META.gi_colors[k], META.gi_labels[k]]));
+  } else {
+    const b = [META.death_min, ...META.death_breaks, META.death_max];
+    deathColors.forEach((c, i) => items.push([c, `${fmt(b[i])} - ${fmt(b[i + 1])}`]));
+  }
+  const title = { hot: 'Space-time Gi*, ' + monthName(META.months[monthIdx]) + ' (case rate vs. analysed counties; FDR q &lt; 0.05)',
+    ehsa: 'Emerging hot spot category as of ' + META.period.split(' - ')[1] + ' (counties)', month: 'Cases per 100,000 in ' + monthName(META.months[monthIdx]),
+    gi: 'Gi* hot/cold spots, ' + META.waves[waveIdx] + ' (q = FDR-adjusted p)', deaths: 'Deaths per 100,000, whole period (quintiles)' }[mode];
+  if (META.n_excluded) items.push([hatchSw, `${META.excluded_label} (${META.n_excluded})`]);
+  L.innerHTML = `<div style="font-weight:600;margin-bottom:4px">${title}</div>` +
+    items.map(([c, t]) => `<div class="it"><span class="sw" style="background:${c}"></span>${t}</div>`).join('');
+}
+
+const map = new maplibregl.Map({
+  container: 'map',
+  style: { version: 8, sources: {},
+    layers: [{ id: 'bg', type: 'background', paint: { 'background-color': getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#f6f5f1' } }] },
+  bounds: [[-106.7, 25.8], [-93.5, 36.6]], fitBoundsOptions: { padding: { top: 20, bottom: 20, left: window.innerWidth > 700 ? 360 : 20, right: 20 } },
+  attributionControl: { compact: true, customAttribution: 'Data: The New York Times, U.S. Census Bureau, USDA ERS' }
+});
+map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+
+map.on('load', () => {
+  map.addSource('counties', { type: 'geojson', data: DATA, generateId: true });
+  map.addLayer({ id: 'fill', type: 'fill', source: 'counties', paint: { 'fill-color': fillColor(), 'fill-opacity': 0.9 } });
+  // excluded counties: hatched grey pattern drawn on a canvas
+  const c = document.createElement('canvas'); c.width = c.height = 8;
+  const g = c.getContext('2d'); g.fillStyle = '#d9d9d5'; g.fillRect(0, 0, 8, 8);
+  g.strokeStyle = '#7d7d78'; g.lineWidth = 1.2; g.beginPath();
+  g.moveTo(0, 8); g.lineTo(8, 0); g.moveTo(-2, 2); g.lineTo(2, -2); g.moveTo(6, 10); g.lineTo(10, 6); g.stroke();
+  map.addImage('hatch', g.getImageData(0, 0, 8, 8));
+  map.addLayer({ id: 'excluded', type: 'fill', source: 'counties', filter: ['==', ['get', 'x'], 1],
+    paint: { 'fill-pattern': 'hatch' } });
+  map.addLayer({ id: 'line', type: 'line', source: 'counties', paint: { 'line-color': '#ffffff', 'line-width': 0.4 } });
+  map.addLayer({ id: 'hover', type: 'line', source: 'counties',
+    paint: { 'line-color': '#1f2933', 'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 2, 0] } });
+  legend();
+  const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 8 });
+  let hovered = null;
+  map.on('mousemove', 'fill', e => {
+    const f = e.features[0], p = f.properties;
+    if (hovered !== null) map.setFeatureState({ source: 'counties', id: hovered }, { hover: false });
+    hovered = f.id; map.setFeatureState({ source: 'counties', id: hovered }, { hover: true });
+    map.getCanvas().style.cursor = 'pointer';
+    let line = '';
+    if (p.x === 1) {
+      popup.setLngLat(e.lngLat).setHTML(`<div class="tip"><b>${p.n} County</b> <span style="color:#6b7280">${p.m}, pop. ${fmt(p.p)}</span>` +
+        `<br><b>Excluded from rate statistics:</b> ${fmt(p.tc)} reported cases, more than its ${fmt(p.p)} residents.` +
+        `<br>Likely, but not verified: cases among non-resident workers were counted here. Its cases stay in statewide totals.</div>`).addTo(map);
+      return;
+    }
+    if (mode === 'hot') line = `<br>${monthName(META.months[monthIdx])}: <b>${p['h' + monthIdx] === 1 ? 'hot spot' : p['h' + monthIdx] === -1 ? 'cold spot' : 'not significant'}</b>, ${fmt(p['r' + monthIdx])} cases per 100k`;
+    if (mode === 'month') line = `<br>${monthName(META.months[monthIdx])}: <b>${fmt(p['r' + monthIdx])}</b> cases per 100k`;
+    if (mode === 'gi') line = `<br>${META.waves[waveIdx]}: ${META.gi_labels[String(p['g' + waveIdx])]}`;
+    popup.setLngLat(e.lngLat).setHTML(
+      `<div class="tip"><b>${p.n} County</b> <span style="color:#6b7280">${p.m}, pop. ${fmt(p.p)}</span>${line}` +
+      `<br>Category: <b>${META.categories[p.c]}</b> <br>Hot spot in ${p.mh} of ${META.months.length} months; first: ${p.fw}` +
+      `<br>Whole period: ${fmt(p.cr)} cases and ${fmt(p.dr)} deaths per 100k</div>`).addTo(map);
+  });
+  map.on('mouseleave', 'fill', () => {
+    if (hovered !== null) map.setFeatureState({ source: 'counties', id: hovered }, { hover: false });
+    hovered = null; popup.remove(); map.getCanvas().style.cursor = '';
+  });
+});
+
+function refresh() {
+  document.getElementById('monthLabel').textContent = monthName(META.months[monthIdx]);
+  if (map.getLayer('fill')) map.setPaintProperty('fill', 'fill-color', fillColor());
+  legend();
+}
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => {
+  mode = b.dataset.mode;
+  document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  document.getElementById('monthCtrl').hidden = !(mode === 'month' || mode === 'hot');
+  document.getElementById('waveCtrl').hidden = mode !== 'gi';
+  if (!(mode === 'month' || mode === 'hot') && timer) { clearInterval(timer); timer = null; document.getElementById('play').innerHTML = '&#9654;'; }
+  refresh();
+}));
+monthEl.addEventListener('input', () => { monthIdx = +monthEl.value; refresh(); });
+waveEl.addEventListener('change', () => { waveIdx = +waveEl.value; refresh(); });
+document.getElementById('play').addEventListener('click', e => {
+  if (timer) { clearInterval(timer); timer = null; e.target.innerHTML = '&#9654;'; return; }
+  e.target.innerHTML = '&#10074;&#10074;';
+  timer = setInterval(() => { monthIdx = (monthIdx + 1) % META.months.length; monthEl.value = monthIdx; refresh(); }, 700);
+});
+refresh();
+</script>
+</body>
+</html>
